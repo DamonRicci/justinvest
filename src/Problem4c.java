@@ -4,6 +4,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.spec.KeySpec;
 
@@ -17,6 +20,7 @@ public class Problem4c {
     private static final String KDF_ALG = "PBKDF2WithHmacSHA256";
 
     public static void main(String[] args) throws Exception {
+        ensureAdminRecord();
         var adminRec = Problem2c.getUserRecord(ADMIN_USER);
         t(adminRec != null, "admin record exists"); // admin exist
         t(verify(ADMIN_PW, adminRec), "admin password verifies"); // admin can auth
@@ -39,6 +43,29 @@ public class Problem4c {
         runUi();
 
         System.out.println("All tests passed.");
+    }
+
+    private static void ensureAdminRecord() throws Exception {
+        if (Problem2c.getUserRecord(ADMIN_USER) == null) {
+            Problem2c.addUser(ADMIN_USER, ADMIN_PW.clone());
+        }
+
+        Path usersFile = Path.of("users.txt");
+        if (!Files.exists(usersFile)) {
+            Files.writeString(usersFile, ADMIN_USER + ":ADMIN" + System.lineSeparator(), StandardCharsets.UTF_8,
+                    StandardOpenOption.CREATE);
+            return;
+        }
+
+        for (String line : Files.readAllLines(usersFile, StandardCharsets.UTF_8)) {
+            String[] parts = line.split(":", 2);
+            if (parts.length == 2 && parts[0].trim().equals(ADMIN_USER)) {
+                return;
+            }
+        }
+
+        Files.writeString(usersFile, ADMIN_USER + ":ADMIN" + System.lineSeparator(), StandardCharsets.UTF_8,
+                StandardOpenOption.CREATE, StandardOpenOption.APPEND);
     }
 
     private static boolean verify(char[] password, Problem2c.PasswordRecord r) throws Exception {

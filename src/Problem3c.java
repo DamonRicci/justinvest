@@ -12,7 +12,7 @@ public class Problem3c {
 
         // TEST 1: Valid password + enrolment succeeds
         String u1 = "alice";
-        char[] p1 = "GoodPassword1!".toCharArray(); // meets policy
+        char[] p1 = "GoodPass1!".toCharArray(); // meets policy
         String err1 = Problem3b.validate(u1, p1);
         if (err1 == null) {
             Problem2c.addUser(u1, p1);
