@@ -1,7 +1,3 @@
-// PasswordFileUsageTest.java
-// Compile: javac PasswordFile.java PasswordFileUsageTest.java
-// Run:     java PasswordFileUsageTest
-
 import java.io.IOException;
 import java.nio.file.*;
 import java.security.MessageDigest;
@@ -10,7 +6,8 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
 /**
- * Smoke tests for Problem2c that back up passwd.txt before running.
+ * tests for Problem2c that back up passwd.txt before running to ensure account
+ * already registered aren't deleted
  */
 public class Problem2d {
     private static final Path PASSWD = Path.of("passwd.txt");
@@ -47,7 +44,7 @@ public class Problem2d {
         String carol = prefix + "_carol";
         String missing = prefix + "_missing";
 
-        // Test 1: enroll -> record exists + correct fields
+        // TEST 1: enroll -> record exists + correct fields
         Problem2c.addUser(alice, "CorrectHorseBatteryStaple!".toCharArray());
         var a = Problem2c.getUserRecord(alice);
         t(a != null, "enroll creates retrievable record");
@@ -59,13 +56,16 @@ public class Problem2d {
         t(verify("CorrectHorseBatteryStaple!".toCharArray(), a), "correct password verifies");
         t(!verify("wrong-password".toCharArray(), a), "wrong password fails");
 
-        // Test 3: duplicate username rejected
+        // TEST 3: duplicate username rejected
         boolean dupRejected = false;
-        try { Problem2c.addUser(alice, "AnotherPass123!".toCharArray()); }
-        catch (IllegalArgumentException e) { dupRejected = true; }
+        try {
+            Problem2c.addUser(alice, "AnotherPass123!".toCharArray());
+        } catch (IllegalArgumentException e) {
+            dupRejected = true;
+        }
         t(dupRejected, "duplicate username rejected");
 
-        // Test 4: same password for different users => different salts/hashes
+        // TESt 4: same password for different users => different salts/hashes
         Problem2c.addUser(bob, "SamePassword!".toCharArray());
         Problem2c.addUser(carol, "SamePassword!".toCharArray());
         var b = Problem2c.getUserRecord(bob);
@@ -74,7 +74,7 @@ public class Problem2d {
         t(!MessageDigest.isEqual(b.salt, c.salt), "salts differ");
         t(!MessageDigest.isEqual(b.hash, c.hash), "hashes differ");
 
-        // Test 5: missing user returns null
+        // TEST 5: missing user returns null
         t(Problem2c.getUserRecord(missing) == null, "missing user returns null");
     }
 
@@ -93,7 +93,8 @@ public class Problem2d {
     }
 
     private static void t(boolean ok, String msg) {
-        if (!ok) throw new AssertionError("FAIL: " + msg);
+        if (!ok)
+            throw new AssertionError("FAIL: " + msg);
         System.out.println("PASS: " + msg);
     }
 }

@@ -1,5 +1,5 @@
 /**
- * Simple user representation holding username and role.
+ * User entity, that has a role
  */
 public class User {
     private final String username;

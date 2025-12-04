@@ -13,7 +13,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
 /**
- * Minimal password file manager using PBKDF2 with per-user salt.
+ * nminimal password file manager using PBKDF2 with per-user salt
  */
 public class Problem2c {
     private static final String PASSWD_FILE = "passwd.txt";
@@ -25,7 +25,8 @@ public class Problem2c {
     private static final SecureRandom RNG = new SecureRandom();
 
     /**
-     * Adds a user credential to the password file using PBKDF2.
+     * adds a user credential to the password file using PBKDF2
+     * to be used by other classes
      *
      * @param username unique username
      * @param password password characters to hash
@@ -33,9 +34,9 @@ public class Problem2c {
      */
     public static void addUser(String username, char[] password) throws Exception {
         File file = new File(PASSWD_FILE);
-        file.createNewFile(); // create if not exists
+        file.createNewFile(); // create if not exist yet
 
-        // optional: prevent duplicate usernames
+        // prevent username dupes
         if (getUserRecord(username) != null) {
             throw new IllegalArgumentException("User already exists: " + username);
         }
@@ -61,7 +62,7 @@ public class Problem2c {
     }
 
     /**
-     * Looks up a stored credential record for a user.
+     * looks up a stored credential record for a user
      *
      * @param username username to find
      * @return password record or null if not present
@@ -77,12 +78,15 @@ public class Problem2c {
                 new FileReader(file, StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                if (line.isBlank()) continue;
+                if (line.isBlank())
+                    continue;
                 String[] parts = line.split(":", 5);
-                if (parts.length != 5) continue;
+                if (parts.length != 5)
+                    continue;
 
                 String user = parts[0];
-                if (!user.equals(username)) continue;
+                if (!user.equals(username))
+                    continue;
 
                 String kdf = parts[1];
                 int iterations = Integer.parseInt(parts[2]);
@@ -97,7 +101,7 @@ public class Problem2c {
     }
 
     /**
-     * Immutable representation of a password record stored on disk.
+     * An immutable password record to store on disk (in the text file)
      */
     public static final class PasswordRecord {
         public final String username;
@@ -106,11 +110,7 @@ public class Problem2c {
         public final byte[] salt;
         public final byte[] hash;
 
-        public PasswordRecord(String username,
-                              String kdf,
-                              int iterations,
-                              byte[] salt,
-                              byte[] hash) {
+        public PasswordRecord(String username, String kdf, int iterations, byte[] salt, byte[] hash) {
             this.username = username;
             this.kdf = kdf;
             this.iterations = iterations;
@@ -118,19 +118,4 @@ public class Problem2c {
             this.hash = hash;
         }
     }
-
-    // legacy initial test
-
-    /*
-    public static void main(String[] args) throws Exception {
-        addUser("sasha.kim", "ExamplePassw0rd!".toCharArray());
-        PasswordRecord r = getUserRecord("sasha.kim");
-        if (r != null) {
-            String saltB64 = Base64.getEncoder().encodeToString(r.salt);
-            String hashB64 = Base64.getEncoder().encodeToString(r.hash);
-            System.out.println("Record line:");
-            System.out.println(r.username + ":" + r.kdf + ":" + r.iterations
-                    + ":" + saltB64 + ":" + hashB64);
-        }
-    } */
 }

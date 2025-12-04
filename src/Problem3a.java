@@ -1,10 +1,3 @@
-// Problem3a.java
-// Compile: javac Problem2c.java Problem3a.java
-// Run:     java Problem3a
-//
-// NOTE: This calls Problem2c.addUser(...). If your password-file class is named differently,
-// change that one line accordingly.
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -13,7 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 /**
- * Interactive enrolment flow that validates passwords and assigns the CLIENT role.
+ * the enrolment flow that validates passwords and assigns the CLIENT role
  */
 public class Problem3a {
     private static final String USERS_FILE = "users.txt"; // stores username -> role label
@@ -34,7 +27,7 @@ public class Problem3a {
             username = readUsername(in);
         }
         char[] password = readPassword(in, username);
-        char[] confirm  = readPasswordConfirm(in);
+        char[] confirm = readPasswordConfirm(in);
 
         if (!same(password, confirm)) {
             System.out.println();
@@ -44,9 +37,10 @@ public class Problem3a {
 
         String role = ROLE_CLIENT; // only CLIENT sign-ups allowed
 
-        // Enrol: add to password file (Problem 2) + add to role file (for access control)
+        // enrol: add to password file (Problem 2) + add to role file (for access
+        // control)
         try {
-            // If Problem2c throws on duplicates, that's fine.
+            // if Problem2c throws on duplicates, that's fine
             Problem2c.addUser(username, password);
 
             // store role label for later login/access-control
@@ -94,7 +88,6 @@ public class Problem3a {
         }
     }
 
-
     private static char[] readPasswordConfirm(Scanner in) {
         System.out.print("Confirm password: ");
         return in.nextLine().toCharArray();
@@ -104,7 +97,7 @@ public class Problem3a {
         File f = new File(USERS_FILE);
         f.createNewFile();
 
-        // Format: <username>:<role>
+        // Format into: <username>:<role>
         String line = username + ":" + role + System.lineSeparator();
         try (BufferedWriter w = new BufferedWriter(new FileWriter(f, StandardCharsets.UTF_8, true))) {
             w.write(line);
@@ -112,8 +105,11 @@ public class Problem3a {
     }
 
     private static boolean same(char[] a, char[] b) {
-        if (a.length != b.length) return false;
-        for (int i = 0; i < a.length; i++) if (a[i] != b[i]) return false;
+        if (a.length != b.length)
+            return false;
+        for (int i = 0; i < a.length; i++)
+            if (a[i] != b[i])
+                return false;
         return true;
     }
 

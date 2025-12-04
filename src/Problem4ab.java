@@ -1,11 +1,3 @@
-// Problem4ab.java
-// Compile: javac Problem2c.java Problem4ab.java
-// Run:     java Problem4ab
-//
-// Uses:
-// - passwd.txt from Problem 2 (via Problem2c.getUserRecord())
-// - users.txt from enrolment (username:ROLE per line)
-
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.io.*;
@@ -16,21 +8,24 @@ import java.time.LocalTime;
 import java.util.*;
 
 /**
- * Authentication and authorization entry point with admin user management menu.
+ * authentication and authorization entry point with admin user management menu
+ * (both problems 4 a and b)
+ * 
+ * Admin menu to allow for roles changes without changing code. (noted as
+ * critical attack vector for the system)
  */
 public class Problem4ab {
 
     private static final String USERS_FILE = "users.txt";
     private static final String KDF_ALG = "PBKDF2WithHmacSHA256";
     private static final List<String> ASSIGNABLE_ROLES = List.of(
-            "CLIENT", "PREMIUM_CLIENT", "TELLER", "FINANCIAL_ADVISOR", "FINANCIAL_PLANNER"
-    );
+            "CLIENT", "PREMIUM_CLIENT", "TELLER", "FINANCIAL_ADVISOR", "FINANCIAL_PLANNER");
 
     public static void main(String[] args) throws Exception {
         Scanner in = new Scanner(System.in);
 
         System.out.println("justInvest System");
-        System.out.println("------------------------------");
+        System.out.println("=------------------=");
         System.out.println("Operations available on the system:");
         System.out.println("1. View account balance");
         System.out.println("2. View investment portfolio");
@@ -46,7 +41,7 @@ public class Problem4ab {
 
         char[] password = readPassword("Enter password: ", in);
 
-        // ---- Authenticate (Problem 4a) ----
+        // Authenticate (Problem 4a)
         Problem2c.PasswordRecord rec = Problem2c.getUserRecord(username);
         if (rec == null) {
             deny();
@@ -57,7 +52,7 @@ public class Problem4ab {
             return;
         }
 
-        // ---- Determine privileges (Problem 4b) ----
+        // Determine privileges (Problem 4b)
         List<String> labels = getUserLabels(username);
         if (labels.isEmpty()) {
             deny();
@@ -76,7 +71,8 @@ public class Problem4ab {
             if (role.equals("TELLER") && !isBusinessHours()) {
                 System.out.println();
                 System.out.println("ACCESS DENIED!");
-                System.out.println("Reason: Tellers can only access the system during business hours (9:00am to 5:00pm).");
+                System.out.println(
+                        "Reason: Tellers can only access the system during business hours (9:00am to 5:00pm)");
                 return;
             }
 
@@ -92,7 +88,8 @@ public class Problem4ab {
         System.out.print("Which operation would you like to perform? ");
 
         String choice = in.nextLine().trim();
-        if (choice.isEmpty()) return;
+        if (choice.isEmpty())
+            return;
 
         int op;
         try {
@@ -107,7 +104,7 @@ public class Problem4ab {
             return;
         }
 
-        System.out.println("Operation " + op + " selected (not implemented in prototype).");
+        System.out.println("Operation " + op + " selected (not implemented since in prototype).");
     }
 
     private static void deny() {
@@ -123,21 +120,26 @@ public class Problem4ab {
 
     private static List<String> getUserLabels(String username) throws IOException {
         File f = new File(USERS_FILE);
-        if (!f.exists()) return List.of();
+        if (!f.exists())
+            return List.of();
 
         try (BufferedReader br = new BufferedReader(new FileReader(f, StandardCharsets.UTF_8))) {
             String line;
             while ((line = br.readLine()) != null) {
                 line = line.trim();
-                if (line.isEmpty()) continue;
+                if (line.isEmpty())
+                    continue;
 
                 String[] parts = line.split(":", 2);
-                if (parts.length != 2) continue;
+                if (parts.length != 2)
+                    continue;
 
                 String u = parts[0].trim();
-                if (!u.equals(username)) continue;
+                if (!u.equals(username))
+                    continue;
 
-                // Allow backward compatibility but enforce single-role model by taking the first role only.
+                // allow backward compatibility but enforce single-role model by taking the
+                // first role only.
                 String[] labels = parts[1].split(",");
                 List<String> out = new ArrayList<>();
                 for (String lab : labels) {
@@ -154,28 +156,43 @@ public class Problem4ab {
     }
 
     private static Set<Integer> operationsForRole(String role) {
-        // Operations:
-        // 1 balance, 2 portfolio, 3 modify, 4 FA contact, 5 FP contact, 6 money market, 7 private consumer
+        // operations: 1 balance, 2 portfolio, 3 modify, 4 FA contact, 5 FP contact, 6
+        // money market, 7 private consumer
+        // hidden admin menu only if you log in as admin role.
         Set<Integer> ops = new HashSet<>();
 
         switch (role) {
             case "CLIENT" -> {
-                ops.add(1); ops.add(2); ops.add(4);
+                ops.add(1);
+                ops.add(2);
+                ops.add(4);
             }
             case "PREMIUM_CLIENT" -> {
-                ops.add(1); ops.add(2); ops.add(3); ops.add(4); ops.add(5);
+                ops.add(1);
+                ops.add(2);
+                ops.add(3);
+                ops.add(4);
+                ops.add(5);
             }
             case "FINANCIAL_ADVISOR" -> {
-                ops.add(1); ops.add(2); ops.add(3); ops.add(7);
+                ops.add(1);
+                ops.add(2);
+                ops.add(3);
+                ops.add(7);
             }
             case "FINANCIAL_PLANNER" -> {
-                ops.add(1); ops.add(2); ops.add(3); ops.add(6); ops.add(7);
+                ops.add(1);
+                ops.add(2);
+                ops.add(3);
+                ops.add(6);
+                ops.add(7);
             }
             case "TELLER" -> {
-                ops.add(1); ops.add(2);
+                ops.add(1);
+                ops.add(2);
             }
             default -> {
-                // Unknown label -> no permissions
+                // unknown label -> default to no permissions (safe defaults principle)
             }
         }
         return ops;
@@ -193,7 +210,7 @@ public class Problem4ab {
         s = s.replace('-', ' ').replace('_', ' ');
         s = s.replaceAll("\\s+", " ").trim();
 
-        // normalize to the role tokens used in code
+        // normalize to the role to what's used in code
         return switch (s) {
             case "PREMIUM CLIENT" -> "PREMIUM_CLIENT";
             case "FINANCIAL ADVISOR" -> "FINANCIAL_ADVISOR";
@@ -206,7 +223,8 @@ public class Problem4ab {
         StringBuilder sb = new StringBuilder();
         boolean first = true;
         for (int op : ops) {
-            if (!first) sb.append(",");
+            if (!first)
+                sb.append(",");
             sb.append(op);
             first = false;
         }
@@ -272,7 +290,8 @@ public class Problem4ab {
         }
 
         String role = promptRoleSelection(in);
-        if (role == null) return;
+        if (role == null)
+            return;
 
         roles.put(target, new ArrayList<>(List.of(role)));
         persistUserRoles(roles);
@@ -308,15 +327,18 @@ public class Problem4ab {
     private static Map<String, List<String>> readAllUserRoles() throws Exception {
         Map<String, List<String>> roles = new LinkedHashMap<>();
         File f = new File(USERS_FILE);
-        if (!f.exists()) return roles;
+        if (!f.exists())
+            return roles;
 
         try (BufferedReader br = new BufferedReader(new FileReader(f, StandardCharsets.UTF_8))) {
             String line;
             while ((line = br.readLine()) != null) {
                 line = line.trim();
-                if (line.isEmpty()) continue;
+                if (line.isEmpty())
+                    continue;
                 String[] parts = line.split(":", 2);
-                if (parts.length != 2) continue;
+                if (parts.length != 2)
+                    continue;
                 String user = parts[0].trim();
                 String[] labs = parts[1].split(",");
                 List<String> list = new ArrayList<>();
@@ -327,7 +349,8 @@ public class Problem4ab {
                         break; // enforce single role per user
                     }
                 }
-                if (!user.isEmpty()) roles.put(user, list);
+                if (!user.isEmpty())
+                    roles.put(user, list);
             }
         }
         return roles;
@@ -340,7 +363,8 @@ public class Problem4ab {
             for (var entry : roles.entrySet()) {
                 String user = entry.getKey();
                 List<String> labels = entry.getValue();
-                if (user == null || user.isBlank() || labels == null || labels.isEmpty()) continue;
+                if (user == null || user.isBlank() || labels == null || labels.isEmpty())
+                    continue;
                 String joined = String.join(",", labels);
                 w.write(user);
                 w.write(":");

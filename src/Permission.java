@@ -1,5 +1,5 @@
 /**
- * Permissions that can be exercised by roles in the system.
+ * Permissions that can be used by roles in the system
  */
 public enum Permission {
     VIEW_OWN_BALANCE,

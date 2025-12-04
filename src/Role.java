@@ -1,5 +1,5 @@
 /**
- * Enumeration of user roles supported by the system (including ADMIN).
+ * user roles supported by the system (including ADMIN)
  */
 public enum Role {
     CLIENT,

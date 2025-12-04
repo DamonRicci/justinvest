@@ -1,5 +1,5 @@
 /**
- * Context for permission checks, carrying the account owner and current hour.
+ * context for permission checker, gives the account owner and current hour
  */
 public class ActionContext {
     private final String accountOwner;
@@ -7,7 +7,7 @@ public class ActionContext {
 
     /**
      * Creates a context for evaluating permissions.
-     *
+     * 
      * @param accountOwner username the action targets
      * @param hourOfDay    hour in 24h format (0-23)
      */
@@ -16,12 +16,18 @@ public class ActionContext {
         this.hourOfDay = hourOfDay;
     }
 
-    /** @return username associated with the action */
+    /**
+     * @return username associated with the action
+     * 
+     */
     public String getAccountOwner() {
         return accountOwner;
     }
 
-    /** @return hour of day (0-23) when the action is performed */
+    /**
+     * @return hour of day (0-23) when the action is performed
+     * 
+     */
     public int getHourOfDay() {
         return hourOfDay;
     }
