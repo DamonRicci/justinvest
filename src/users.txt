@@ -1,0 +1,12 @@
+sasha.kim:CLIENT
+emery.blake:CLIENT
+noor.abbasi:PREMIUM_CLIENT
+zuri.adebayo:PREMIUM_CLIENT
+mikael.chen:FINANCIAL_ADVISOR
+jordan.riley:FINANCIAL_ADVISOR
+ellis.nakamura:FINANCIAL_PLANNER
+harper.diaz:FINANCIAL_PLANNER
+alex.hayes:TELLER
+adair.patel:TELLER
+admin:ADMIN
+damon:FINANCIAL_PLANNER
