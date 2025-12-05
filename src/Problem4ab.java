@@ -58,6 +58,7 @@ public class Problem4ab {
             deny();
             return;
         }
+        String role = normalizeRole(labels.get(0));
 
         if (hasManageUsersPermission(username, labels)) {
             handleUserManagement(in, username);
@@ -66,9 +67,9 @@ public class Problem4ab {
 
         Set<Integer> ops = new TreeSet<>();
         for (String label : labels) {
-            String role = normalizeRole(label);
+            String roleLabel = normalizeRole(label);
 
-            if (role.equals("TELLER") && !isBusinessHours()) {
+            if (roleLabel.equals("TELLER") && !isBusinessHours()) {
                 System.out.println();
                 System.out.println("ACCESS DENIED!");
                 System.out.println(
@@ -76,7 +77,7 @@ public class Problem4ab {
                 return;
             }
 
-            ops.addAll(operationsForRole(role));
+            ops.addAll(operationsForRole(roleLabel));
         }
 
         System.out.println();
@@ -100,6 +101,17 @@ public class Problem4ab {
         }
 
         if (!ops.contains(op)) {
+            System.out.println("UNAUTHORIZED.");
+            return;
+        }
+
+        Permission perm = permissionForRoleOp(role, op);
+        if (perm == null) {
+            System.out.println("UNAUTHORIZED.");
+            return;
+        }
+        int hour = LocalTime.now().getHour();
+        if (!AccessControl.hasPermission(new User(username, Role.valueOf(role)), perm, new ActionContext(username, hour))) {
             System.out.println("UNAUTHORIZED.");
             return;
         }
@@ -196,6 +208,43 @@ public class Problem4ab {
             }
         }
         return ops;
+    }
+
+    private static Permission permissionForRoleOp(String role, int op) {
+        return switch (role) {
+            case "CLIENT" -> switch (op) {
+                case 1 -> Permission.VIEW_OWN_BALANCE;
+                case 2 -> Permission.VIEW_OWN_PORTFOLIO;
+                case 4 -> Permission.VIEW_ADVISOR_DETAILS;
+                default -> null;
+            };
+            case "PREMIUM_CLIENT" -> switch (op) {
+                case 1 -> Permission.VIEW_OWN_BALANCE;
+                case 2 -> Permission.VIEW_OWN_PORTFOLIO;
+                case 3 -> Permission.MODIFY_OWN_PORTFOLIO;
+                case 4 -> Permission.VIEW_ADVISOR_DETAILS;
+                case 5 -> Permission.VIEW_PLANNER_DETAILS;
+                default -> null;
+            };
+            case "FINANCIAL_ADVISOR" -> switch (op) {
+                case 1, 2 -> Permission.VIEW_ALL_CLIENT_ACCOUNTS;
+                case 3 -> Permission.MODIFY_ALL_PORTFOLIO;
+                case 7 -> Permission.VIEW_PRIVATE_INSTRUMENTS;
+                default -> null;
+            };
+            case "FINANCIAL_PLANNER" -> switch (op) {
+                case 1, 2 -> Permission.VIEW_ALL_CLIENT_ACCOUNTS;
+                case 3 -> Permission.MODIFY_ALL_PORTFOLIO;
+                case 6 -> Permission.VIEW_MONEYMARKET_INSTR;
+                case 7 -> Permission.VIEW_PRIVATE_INSTRUMENTS;
+                default -> null;
+            };
+            case "TELLER" -> switch (op) {
+                case 1, 2 -> Permission.VIEW_ALL_CLIENT_ACCOUNTS;
+                default -> null;
+            };
+            default -> null;
+        };
     }
 
     private static boolean isBusinessHours() {
@@ -385,10 +434,6 @@ public class Problem4ab {
     }
 
     private static char[] readPassword(String prompt, Scanner fallback) throws IOException {
-        Console c = System.console();
-        if (c != null) {
-            return c.readPassword(prompt);
-        }
         System.out.print(prompt);
         return fallback.nextLine().toCharArray();
     }
