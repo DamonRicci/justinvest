@@ -111,7 +111,8 @@ public class Problem4ab {
             return;
         }
         int hour = LocalTime.now().getHour();
-        if (!AccessControl.hasPermission(new User(username, Role.valueOf(role)), perm, new ActionContext(username, hour))) {
+        if (!AccessControl.hasPermission(new User(username, Role.valueOf(role)), perm,
+                new ActionContext(username, hour))) {
             System.out.println("UNAUTHORIZED.");
             return;
         }
